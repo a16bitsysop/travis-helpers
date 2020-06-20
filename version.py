@@ -34,9 +34,8 @@ def getAlpineApk( APK ):
 	result = client.containers.run(IMG, CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
 	return result
 
-def getAlpineVer():
-	IMG = "alpine"
-	if args.edge:
+def getAlpineVer( IMG = "alpine" ):
+	if IMG == "alpine" and args.edge:
 		IMG = IMG + ":edge"
 	result = catFile(IMG, "/etc/alpine-release")
 	return result
@@ -55,6 +54,8 @@ parser.add_argument('-a', '--alpine', type=str,\
 help='get latest version of alpine package "ALPINE"')
 parser.add_argument('-b', '--base', action='store_true',\
 help='get alpine base image version')
+parser.add_argument('-m', '--myalp', type=str,\
+help='get version of alpine in image "MYALP"')
 parser.add_argument('-e', '--edge', action='store_true',\
 help='use alpine edge version for command')
 parser.add_argument('-d', '--docker', type=str,\
@@ -70,11 +71,14 @@ client = from_env()
 if args.alpine:
 	print(getAlpineApk(args.alpine))
 
-if args.docker:
-	print(getDockerTag(args.docker))
-
 if args.base:
 	print(getAlpineVer())
+
+if args.myalp:
+	print(getAlpineVer(IMG = args.myalp))
+
+if args.docker:
+	print(getDockerTag(args.docker))
 
 if args.fhash:
 	print(getFileHash(args.fhash))
