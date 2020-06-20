@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from urllib import request
 from json import loads
 from docker import from_env
+from natsort import natsorted
 
 def getDockerTag( URI):
 	DOCKURI = "https://registry.hub.docker.com/v1/repositories/"
@@ -13,13 +14,13 @@ def getDockerTag( URI):
 
 	lines = []
 	for line in json_data:
-        	lines.append(line['name'])
+		ver = line['name']
+		if ver != "latest":
+			lines.append(ver)
 
-	lines.sort(key=lambda x: x, reverse=True)
-	if lines[0] == "latest":
-		lines.pop(0)
+	lines = natsorted(lines)
 
-	return lines[0]
+	return lines[-1]
 
 def getAlpineApk( APK ):
 	client = from_env()
@@ -58,4 +59,3 @@ if args.docker:
 
 if args.base:
 	print(getAlpineVer())
-
