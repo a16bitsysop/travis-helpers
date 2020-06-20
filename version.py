@@ -21,10 +21,22 @@ def getDockerTag( URI):
 
 	return lines[0]
 
-def getAlpineVer( APK ):
+def getAlpineApk( APK ):
 	client = from_env()
 	CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
-	result = client.containers.run('alpine', CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
+	IMG = "alpine"
+	if args.edge:
+		IMG = IMG + ":edge"
+	result = client.containers.run(IMG, CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
+	return result
+
+def getAlpineVer():
+	client = from_env()
+	CMD = 'cat /etc/alpine-release'
+	IMG = "alpine"
+	if args.edge:
+		IMG = IMG + ":edge"
+	result = client.containers.run(IMG, CMD).decode('utf-8').strip()
 	return result
 
 parser = ArgumentParser()
@@ -32,12 +44,18 @@ parser.add_argument('-a', '--alpine', type=str,\
 help='get latest version of alpine package "ALPINE"')
 parser.add_argument('-d', '--docker', type=str,\
 help='get latest docker tag of docker image "DOCKER"')
-#parser.add_argument('-f', '--force', action='store_true',\
-#help='do not check if needs update')
+parser.add_argument('-b', '--base', action='store_true',\
+help='get alpine base image version')
+parser.add_argument('-e', '--edge', action='store_true',\
+help='use alpine edge version for command')
 args = parser.parse_args()
 
 if args.alpine:
-	print(getAlpineVer(args.alpine))
+	print(getAlpineApk(args.alpine))
 
 if args.docker:
 	print(getDockerTag(args.docker))
+
+if args.base:
+	print(getAlpineVer())
+
