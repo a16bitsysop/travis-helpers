@@ -40,15 +40,23 @@ def getAlpineVer():
 	result = client.containers.run(IMG, CMD).decode('utf-8').strip()
 	return result
 
+def getGitHash( FILE ):
+	data = request.urlopen("https://raw.githubusercontent.com/" + FILE)
+	etag = data.getheader('ETag')
+	return etag
+
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
 help='get latest version of alpine package "ALPINE"')
-parser.add_argument('-d', '--docker', type=str,\
-help='get latest docker tag of docker image "DOCKER"')
 parser.add_argument('-b', '--base', action='store_true',\
 help='get alpine base image version')
 parser.add_argument('-e', '--edge', action='store_true',\
 help='use alpine edge version for command')
+parser.add_argument('-d', '--docker', type=str,\
+help='get latest docker tag of docker image "DOCKER"')
+parser.add_argument('-g', '--ghash', type=str,\
+help='get latest git hash of file "GHASH"')
+
 args = parser.parse_args()
 
 if args.alpine:
@@ -59,3 +67,6 @@ if args.docker:
 
 if args.base:
 	print(getAlpineVer())
+
+if args.ghash:
+	print(getGitHash(args.ghash))
