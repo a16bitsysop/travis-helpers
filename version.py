@@ -6,12 +6,12 @@ from docker import from_env
 from natsort import natsorted
 
 def catFile( IMG, FILE ):
-	result = client.containers.run(IMG, "cat " + FILE).decode('utf-8').strip()
+	result = client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
 	return result
 
-def getDockerTag( URI):
-	DOCKURI = "https://registry.hub.docker.com/v1/repositories/"
-	tags = request.urlopen(DOCKURI + URI + "/tags")
+def getDockerTag( URI ):
+	DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
+	tags = request.urlopen(DOCKURI + URI + '/tags')
 
 	raw_data = tags.read()
 	json_data = loads(raw_data.decode('utf-8'))
@@ -19,7 +19,7 @@ def getDockerTag( URI):
 	lines = []
 	for line in json_data:
 		ver = line['name']
-		if ver != "latest":
+		if ver != 'latest':
 			lines.append(ver)
 
 	lines = natsorted(lines)
@@ -28,25 +28,25 @@ def getDockerTag( URI):
 
 def getAlpineApk( APK ):
 	CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
-	IMG = "alpine"
+	IMG = 'alpine'
 	if args.edge:
-		IMG = IMG + ":edge"
+		IMG = IMG + ':edge'
 	result = client.containers.run(IMG, CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
 	return result
 
-def getAlpineVer( IMG = "alpine" ):
-	if IMG == "alpine" and args.edge:
-		IMG = IMG + ":edge"
-	result = catFile(IMG, "/etc/alpine-release")
+def getAlpineVer( IMG = 'alpine' ):
+	if IMG == 'alpine' and args.edge:
+		IMG = IMG + ':edge'
+	result = catFile(IMG, '/etc/alpine-release')
 	return result
 
 def getGitHash( FILE ):
-	data = request.urlopen("https://raw.githubusercontent.com/" + FILE)
+	data = request.urlopen('https://raw.githubusercontent.com/' + FILE)
 	etag = data.getheader('ETag')
 	return etag
 
 def getFileHash( IMG ):
-	result = catFile(IMG, "/etc/githash")
+	result = catFile(IMG, '/etc/githash')
 	return result
 
 parser = ArgumentParser()
