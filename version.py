@@ -42,7 +42,7 @@ def getAlpineVer( IMG = 'alpine' ):
 
 def getGitHash( FILE ):
 	data = request.urlopen('https://raw.githubusercontent.com/' + FILE)
-	etag = data.getheader('ETag')
+	etag = data.getheader('ETag').strip('"')
 	return etag
 
 def getFileHash( IMG ):
