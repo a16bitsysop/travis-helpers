@@ -47,7 +47,22 @@ def getGitHash( FILE ):
 
 def getFileHash( IMG ):
 	result = catFile(IMG, '/etc/githash')
+
 	return result
+
+def getGitRelease( REPO ):
+	data = request.urlopen('https://github.com/' + REPO + '/releases/latest')
+	release = data.url.rsplit('/',1)[1]
+	if release != "releases":
+		return release
+
+	for raw in data.readlines():
+		line = raw.decode('utf-8')
+		if "releases/tag" in line:
+			release = line.rsplit('/',1)[1].split('"',1)[0]
+			return release
+
+	return 0
 
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
@@ -64,6 +79,8 @@ parser.add_argument('-f', '--fhash', type=str,\
 help='get git hash saved in docker image "FHASH"')
 parser.add_argument('-g', '--ghash', type=str,\
 help='get latest git hash of file "GHASH"')
+parser.add_argument('-r', '--release', type=str,\
+help='get latest git release of "release" (USERNAME/REPO)')
 
 args = parser.parse_args()
 client = from_env()
@@ -86,3 +103,5 @@ if args.fhash:
 if args.ghash:
 	print(getGitHash(args.ghash))
 
+if args.release:
+	print(getGitRelease(args.release))
