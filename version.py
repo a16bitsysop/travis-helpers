@@ -4,6 +4,7 @@ from urllib import request
 from json import loads
 from docker import from_env
 from natsort import natsorted
+from bs4 import BeautifulSoup
 
 def catFile( IMG, FILE ):
 	result = client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
@@ -64,6 +65,14 @@ def getGitRelease( REPO ):
 
 	return 0
 
+def getCargoRelease( NAME ):
+	head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+	req = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
+	data = request.urlopen(req)
+	soup = BeautifulSoup(data, 'html.parser')
+	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
+	return vers
+
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
 help='get latest version of alpine package "ALPINE"')
@@ -78,9 +87,11 @@ help='get latest docker tag of docker image "DOCKER"')
 parser.add_argument('-f', '--fhash', type=str,\
 help='get git hash saved in docker image "FHASH"')
 parser.add_argument('-g', '--ghash', type=str,\
-help='get latest git hash of file "GHASH"')
+help='get latest github hash of file "GHASH"')
 parser.add_argument('-r', '--release', type=str,\
-help='get latest git release of "release" (USERNAME/REPO)')
+help='get latest github release of "release" (USERNAME/REPO)')
+parser.add_argument('-c', '--cargo', type=str,\
+help='get latest cargo release of "CARGO"')
 
 args = parser.parse_args()
 client = from_env()
@@ -105,3 +116,6 @@ if args.ghash:
 
 if args.release:
 	print(getGitRelease(args.release))
+
+if args.cargo:
+	print(getCargoRelease(args.cargo))
