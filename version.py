@@ -48,27 +48,20 @@ def getGitHash( FILE ):
 
 def getFileHash( IMG ):
 	result = catFile(IMG, '/etc/githash')
-
 	return result
 
 def getGitRelease( REPO ):
 	data = request.urlopen('https://github.com/' + REPO + '/releases/latest')
-	release = data.url.rsplit('/',1)[1]
-	if release != "releases":
-		return release
-
-	for raw in data.readlines():
-		line = raw.decode('utf-8')
-		if "releases/tag" in line:
-			release = line.rsplit('/',1)[1].split('"',1)[0]
-			return release
-
-	return 0
+	vers = data.url.rsplit('/',1)[1]
+	if vers == "releases":
+		soup = BeautifulSoup(data, 'html.parser')
+		vers = soup.find('div',class_='commit').find('a').get_text().strip()
+	return vers
 
 def getCargoRelease( NAME ):
 	head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	req = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
-	data = request.urlopen(req)
+	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
+	data = request.urlopen(requ)
 	soup = BeautifulSoup(data, 'html.parser')
 	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
 	return vers
