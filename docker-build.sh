@@ -19,7 +19,7 @@ INFO=README.md
 URL=$(git config --get remote.origin.url)
 #GIT_COMMIT
 
-docker BUILDX build \
+docker buildx build \
 --build-arg ALP_VER="$ALP_VER" \
 --build-arg VCS_URL="https://github.com/$TRAVIS_REPO_SLUG" \
 --build-arg BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M:%S") \
