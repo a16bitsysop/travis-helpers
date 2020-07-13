@@ -10,7 +10,7 @@ VER="$3"
 INFO=README.md
   if [ -f "$INFO" ]; then
     echo "Reading $INFO..."
-    NAME=$(head -1 README.md) | cut -d' ' -f2
+    NAME=$(head -1 README.md| cut -d' ' -f2)
     DESC=$(head -2 README.md | tail -n1)
   else
     echo "$INFO not found"
