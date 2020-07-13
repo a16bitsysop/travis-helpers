@@ -20,12 +20,15 @@ URL=$(git config --get remote.origin.url)
 #GIT_COMMIT
 
 docker buildx build \
---build-arg ALP_VER="$ALP_VER" \
---build-arg VCS_URL="https://github.com/$TRAVIS_REPO_SLUG" \
---build-arg BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M:%S") \
---build-arg NAME="$NAME" \
---build-arg DESC="$DESC" \
---build-arg VER="$VER" \
---platform linux/amd64,linux/386,linux/ppc64le,linux/s390x,linux/arm64,linux/arm/v7 \
--t "$IMAGE_NAME:$1" -t "$IMAGE_NAME" --push .
+  --label "org.label-schema.schema-version=1.0" \
+  --label "org.label-schema.build-date=$(date -u +"%Y-%m-%d %H:%M:%S")" \
+  --label "org.label-schema.version=$VER" \
+  --label "org.label-schema.vcs-ref=$TRAVIS_COMMIT" \
+  --label "org.label-schema.vcs-url=https://github.com/$TRAVIS_REPO_SLUG" \
+  --label "org.label-schema.name=$NAME" \
+  --label "org.label-schema.version=$VER" \
+  --label "org.label-schema.description=$DESC" \
+  --label "alpine-version=$ALP_VER" \
+  --platform linux/amd64,linux/386,linux/ppc64le,linux/s390x,linux/arm64,linux/arm/v7 \
+  -t "$IMAGE_NAME:$1" -t "$IMAGE_NAME" --push .
 
