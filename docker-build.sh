@@ -30,5 +30,4 @@ docker buildx build \
   --label "org.label-schema.description=$DESC" \
   --label "alpine-version=$ALP_VER" \
   --platform linux/amd64,linux/386,linux/ppc64le,linux/s390x,linux/arm64,linux/arm/v7 \
-  -t "$IMAGE_NAME:$1" -t "$IMAGE_NAME" --load .
-
+  -t "$IMAGE_NAME:$1" -t "$IMAGE_NAME" --push .
