@@ -6,3 +6,5 @@ docker buildx build -t "test_image" --load .
 
 #set MICROSCANNER_TOKEN environment variable
 scan.sh test_image
+
+exit 1
