@@ -20,7 +20,7 @@ def getDockerTag( URI ):
 	lines = []
 	for line in json_data:
 		ver = line['name']
-		if ver != 'latest':
+		if ver != 'latest' and ver != 'docker-hub':
 			lines.append(ver)
 
 	lines = natsorted(lines)
