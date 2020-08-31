@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from sys import exit
 from argparse import ArgumentParser
 from urllib import request
 from json import loads
@@ -6,9 +7,10 @@ from docker import from_env
 from natsort import natsorted
 from bs4 import BeautifulSoup
 
+head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
 def catFile( IMG, FILE ):
-	result = client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
-	return result
+	return client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
 
 def getDockerTag( URI ):
 	DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
@@ -23,9 +25,7 @@ def getDockerTag( URI ):
 		if ver != 'latest' and ver != 'docker-hub':
 			lines.append(ver)
 
-	lines = natsorted(lines)
-
-	return lines[-1]
+	return natsorted(lines)[-1]
 
 def getAlpineApk( APK ):
 	CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
@@ -38,17 +38,14 @@ def getAlpineApk( APK ):
 def getAlpineVer( IMG = 'alpine' ):
 	if IMG == 'alpine' and args.edge:
 		IMG = IMG + ':edge'
-	result = catFile(IMG, '/etc/alpine-release')
-	return result
+	return catFile(IMG, '/etc/alpine-release')
 
 def getGitHash( FILE ):
 	data = request.urlopen('https://raw.githubusercontent.com/' + FILE)
-	etag = data.getheader('ETag').strip('"')
-	return etag
+	return data.getheader('ETag').strip('"')
 
 def getFileHash( IMG ):
-	result = catFile(IMG, '/etc/githash')
-	return result
+	return catFile(IMG, '/etc/githash')
 
 def getGitRelease( REPO ):
 	data = request.urlopen('https://github.com/' + REPO + '/releases/latest')
@@ -59,12 +56,29 @@ def getGitRelease( REPO ):
 	return vers
 
 def getCargoRelease( NAME ):
-	head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
 	data = request.urlopen(requ)
 	soup = BeautifulSoup(data, 'html.parser')
 	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
 	return vers
+
+def getDirRelease( URI, NAME, EXT ):
+	ver_list = []
+	requ = request.Request(URI, None, headers=head)
+	data = request.urlopen(requ)
+	soup = BeautifulSoup(data, 'html.parser')
+	for link in soup.find_all("a"):
+		filename = link.get('href').strip()
+		if filename.startswith(NAME) and filename.endswith(EXT):
+			ver = filename.replace(NAME,'').replace(EXT,'')
+			if ver.startswith('-') or ver.startswith('.'):
+				ver_list.append(ver[1:])
+			else:
+				ver_list.append(ver)
+	if not ver_list:
+		exit('No ' + NAME + ' found at ' + URI)
+
+	return natsorted(ver_list)[-1]
 
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
@@ -85,6 +99,8 @@ parser.add_argument('-r', '--release', type=str,\
 help='get latest github release of "release" (USERNAME/REPO)')
 parser.add_argument('-c', '--cargo', type=str,\
 help='get latest cargo release of "CARGO"')
+parser.add_argument('-l', '--list', type=str,\
+help='get latest http directory/webpage release of "LIST(full url),NAME(package name),EXT(file extension eg tar.gz)"')
 
 args = parser.parse_args()
 client = from_env()
@@ -112,3 +128,13 @@ if args.release:
 
 if args.cargo:
 	print(getCargoRelease(args.cargo))
+
+if args.list:
+	try:
+		splitargs = args.list.split(',')
+		nme = splitargs[0]
+		uri = splitargs[1]
+		ext = splitargs[2]
+	except IndexError:
+		exit('Not enough , seperated arguments passed to --list')
+	print(getDirRelease(uri, nme, ext))
