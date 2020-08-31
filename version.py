@@ -12,7 +12,7 @@ def catFile( IMG, FILE ):
 
 def getDockerTag( URI ):
 	DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
-	tags = request.urlopen(DOCKURI + URI + '/tags')
+	tags = request.urlopen(DOCKURI + URI + '/tags', timeout=timeo)
 
 	raw_data = tags.read()
 	json_data = loads(raw_data.decode('utf-8'))
@@ -39,23 +39,25 @@ def getAlpineVer( IMG = 'alpine' ):
 	return catFile(IMG, '/etc/alpine-release')
 
 def getGitHash( FILE ):
-	data = request.urlopen('https://raw.githubusercontent.com/' + FILE)
+	data = request.urlopen('https://raw.githubusercontent.com/' + FILE, timeout=timeo)
 	return data.getheader('ETag').strip('"')
 
 def getFileHash( IMG ):
 	return catFile(IMG, '/etc/githash')
 
 def getGitRelease( REPO ):
-	data = request.urlopen('https://github.com/' + REPO + '/releases/latest')
+	data = request.urlopen('https://github.com/' + REPO + '/releases/latest', timeout=timeo)
 	vers = data.url.rsplit('/',1)[1]
 	if vers == "releases":
 		soup = BeautifulSoup(data, 'html.parser')
 		vers = soup.find('div',class_='commit').find('a').get_text().strip()
+	if vers.startswith('v'):
+		return vers[1:]
 	return vers
 
 def getCargoRelease( NAME ):
 	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
-	data = request.urlopen(requ)
+	data = request.urlopen(requ, timeout=timeo)
 	soup = BeautifulSoup(data, 'html.parser')
 	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
 	return vers
@@ -63,7 +65,7 @@ def getCargoRelease( NAME ):
 def getDirRelease( URI, NAME, EXT ):
 	ver_list = []
 	requ = request.Request(URI, None, headers=head)
-	data = request.urlopen(requ)
+	data = request.urlopen(requ, timeout=timeo)
 	soup = BeautifulSoup(data, 'html.parser')
 	for link in soup.find_all("a"):
 		filename = link.get('href').strip()
@@ -103,6 +105,7 @@ help='get latest http directory/webpage release of "LIST(full url),NAME(package 
 args = parser.parse_args()
 client = from_env()
 head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+timeo = 30
 
 if args.alpine:
 	print(getAlpineApk(args.alpine))
