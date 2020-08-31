@@ -7,8 +7,6 @@ from docker import from_env
 from natsort import natsorted
 from bs4 import BeautifulSoup
 
-head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-
 def catFile( IMG, FILE ):
 	return client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
 
@@ -56,7 +54,6 @@ def getGitRelease( REPO ):
 	return vers
 
 def getCargoRelease( NAME ):
-	global head
 	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
 	data = request.urlopen(requ)
 	soup = BeautifulSoup(data, 'html.parser')
@@ -64,7 +61,6 @@ def getCargoRelease( NAME ):
 	return vers
 
 def getDirRelease( URI, NAME, EXT ):
-	global head
 	ver_list = []
 	requ = request.Request(URI, None, headers=head)
 	data = request.urlopen(requ)
@@ -106,6 +102,7 @@ help='get latest http directory/webpage release of "LIST(full url),NAME(package 
 
 args = parser.parse_args()
 client = from_env()
+head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
 if args.alpine:
 	print(getAlpineApk(args.alpine))
