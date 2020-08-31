@@ -69,7 +69,7 @@ def getDirRelease( URI, NAME, EXT ):
 		filename = link.get('href').strip()
 		if filename.startswith(NAME) and filename.endswith(EXT):
 			ver = filename.replace(NAME,'').replace(EXT,'')
-			if ver.startswith('-') or ver.startswith('.'):
+			if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
 				ver_list.append(ver[1:])
 			else:
 				ver_list.append(ver)
