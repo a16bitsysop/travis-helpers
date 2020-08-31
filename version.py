@@ -56,6 +56,7 @@ def getGitRelease( REPO ):
 	return vers
 
 def getCargoRelease( NAME ):
+	global head
 	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
 	data = request.urlopen(requ)
 	soup = BeautifulSoup(data, 'html.parser')
@@ -63,6 +64,7 @@ def getCargoRelease( NAME ):
 	return vers
 
 def getDirRelease( URI, NAME, EXT ):
+	global head
 	ver_list = []
 	requ = request.Request(URI, None, headers=head)
 	data = request.urlopen(requ)
