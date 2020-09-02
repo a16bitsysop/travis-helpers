@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from sys import exit
 from argparse import ArgumentParser
-from urllib import request
+from urllib import request, error
 from json import loads
 from docker import from_env
 from natsort import natsorted
@@ -65,7 +65,20 @@ def getCargoRelease( NAME ):
 def getDirRelease( URI, NAME, EXT ):
 	ver_list = []
 	requ = request.Request(URI, None, headers=head)
-	data = request.urlopen(requ, timeout=timeo)
+	try:
+		data = request.urlopen(requ, timeout=timeo)
+	except error.HTTPError as e:
+		if hasattr(e, 'reason'):
+			exit('Failed to reach a server: ' + str(e.reason))
+		elif hasattr(e, 'code'):
+			exit('The server couldn\'t fulfill the request: ' + e.code)
+		else:
+			exit('unknown error')
+	except error.URLError as e:
+		if hasattr(e, 'reason'):
+			exit('URL Error: ' + str(e.reason))
+		else:
+			exit('unknown error')
 	soup = BeautifulSoup(data, 'html.parser')
 	for link in soup.find_all("a"):
 		filename = link.get('href').strip()
@@ -100,7 +113,7 @@ help='get latest github release of "release" (USERNAME/REPO)')
 parser.add_argument('-c', '--cargo', type=str,\
 help='get latest cargo release of "CARGO"')
 parser.add_argument('-l', '--list', type=str,\
-help='get latest http directory/webpage release of "LIST(full url),NAME(package name),EXT(file extension eg tar.gz)"')
+help='get latest http directory/webpage release of "LIST(package name),URL(full url),EXT(file extension eg tar.gz)"')
 
 args = parser.parse_args()
 client = from_env()
