@@ -6,6 +6,7 @@ from json import loads
 from docker import from_env
 from natsort import natsorted
 from bs4 import BeautifulSoup
+from ftplib import FTP
 
 def catFile( IMG, FILE ):
 	return client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
@@ -62,7 +63,7 @@ def getCargoRelease( NAME ):
 	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
 	return vers
 
-def getDirRelease( URI, NAME, EXT ):
+def getHTTPRelease( URI, NAME, EXT ):
 	ver_list = []
 	requ = request.Request(URI, None, headers=head)
 	try:
@@ -93,6 +94,31 @@ def getDirRelease( URI, NAME, EXT ):
 
 	return natsorted(ver_list)[-1]
 
+def getFTPRelease( URI, DIR, NAME, EXT ):
+	ftp_list = []
+
+	def getname( recv_string ):
+		if recv_string.startswith(NAME) and recv_string.endswith(EXT):
+			ver = recv_string.replace(NAME,'').replace(EXT,'')
+			if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
+				ftp_list.append(ver[1:])
+			else:
+				ftp_list.append(ver)
+
+	#Open ftp connection
+	ftp = FTP(URI)
+	ftp.login()
+
+	#list directory
+	ftp.cwd(DIR)
+	files = ftp.retrlines('NLST', callback=getname)
+	ftp.quit()
+
+	if not ftp_list:
+		exit('No ' + NAME + ' found at ' + URI)
+
+	return natsorted(ftp_list)[-1]
+
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
 help='get latest version of alpine package "ALPINE"')
@@ -114,6 +140,8 @@ parser.add_argument('-c', '--cargo', type=str,\
 help='get latest cargo release of "CARGO"')
 parser.add_argument('-l', '--list', type=str,\
 help='get latest http directory/webpage release of "LIST(package name),URL(full url),EXT(file extension eg tar.gz)"')
+parser.add_argument('-t', '--ftp', type=str,\
+help='get latest ftp directory release of "FTP(package name),URL(ftp server),DIR(ftp directory),EXT(file extension eg tar.gz)"')
 
 args = parser.parse_args()
 client = from_env()
@@ -152,4 +180,15 @@ if args.list:
 		ext = splitargs[2]
 	except IndexError:
 		exit('Not enough , seperated arguments passed to --list')
-	print(getDirRelease(uri, nme, ext))
+	print(getHTTPRelease(uri, nme, ext))
+
+if args.ftp:
+	try:
+		splitargs = args.ftp.split(',')
+		nme = splitargs[0]
+		uri = splitargs[1]
+		dir = splitargs[2]
+		ext = splitargs[3]
+	except IndexError:
+		exit('Not enough , seperated arguments passed to --ftp')
+	print(getFTPRelease(uri, dir, nme, ext))
