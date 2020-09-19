@@ -13,7 +13,15 @@ def catFile( IMG, FILE ):
 
 def getDockerTag( URI ):
 	DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
-	tags = request.urlopen(DOCKURI + URI + '/tags', timeout=timeo)
+	try:
+		tags = request.urlopen(DOCKURI + URI + '/tags', timeout=timeo)
+	except error.HTTPError as e:
+		if hasattr(e, 'reason'):
+			exit('Failed to reach a server, does image exist: ' + str(e.reason))
+		elif hasattr(e, 'code'):
+			exit('The server couldn\'t fulfill the request: ' + e.code)
+		else:
+			exit('unknown error')
 
 	raw_data = tags.read()
 	json_data = loads(raw_data.decode('utf-8'))
