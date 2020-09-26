@@ -34,7 +34,7 @@ done
 echo "Preparing to build $tobuild"
 [ -f ../APKBUILD.patch ] && patch -p1 -i ../APKBUILD.patch
 [ -f ../prebuild.sh ] && sh ../prebuild.sh
-cp ../newfiles/* .
+[ -d ../newfiles ] && cp ../newfiles/* .
 
 cd ..
 mv aport /home/"$NME"/
