@@ -40,7 +40,7 @@ cd ..
 mv aport /home/"$NME"/
 chown -R "$NME":"$NME" /home/"$NME"/aport
 echo "Building $tobuild"
-su -c 'echo "Running as $(whoami)"  && cd ~/aport && abuild-keygen -a -i -n && abuild checksum && export CBUILD=$(uname -m) && abuild -A && abuild -r' - ${NME}
+su -c 'echo "Running as $(whoami)"  && cd ~/aport && export CBUILD=$(uname -m) && echo "Arch is: $CBUILD" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r' - ${NME}
 
 echo "Copying Packages"
 cp -a /home/"$NME"/packages .
