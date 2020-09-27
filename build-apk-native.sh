@@ -12,7 +12,7 @@ fi
 
 echo "Setting up build environment..."
 apk update
-apk add --no-cache --virtual .aport-deps git wget alpine-sdk pax-utils atools apk-tools git sudo
+apk add --no-cache --virtual .aport-deps git wget alpine-sdk pax-utils atools git sudo
 adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty
 
 echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME}
@@ -40,7 +40,7 @@ cd ..
 mv aport /home/"$NME"/
 chown -R "$NME":"$NME" /home/"$NME"/aport
 echo "Building $tobuild"
-su -c 'echo "Running as $(whoami)"  && cd ~/aport && abuild-keygen -a -i -n && abuild checksum && abuild -r' - ${NME}
+su -c 'echo "Running as $(whoami)"  && cd ~/aport && abuild-keygen -a -i -n && abuild checksum && CBUILD=$(uname -m) abuild -r' - ${NME}
 
 echo "Copying Packages"
 cp -a /home/"$NME"/packages .
