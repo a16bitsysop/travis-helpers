@@ -12,7 +12,7 @@ fi
 
 echo "Setting up build environment..."
 apk update
-apk add --no-cache --virtual .aport-deps git wget alpine-sdk pax-utils atools git sudo
+apk add --no-cache --virtual .aport-deps git wget alpine-sdk pax-utils atools apk-tools git sudo
 adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty
 
 echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME}
