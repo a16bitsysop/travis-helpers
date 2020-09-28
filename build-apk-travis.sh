@@ -28,5 +28,6 @@ echo "Preparing to build $tobuild"
 [ -f ../prebuild.sh ] && sh ../prebuild.sh
 [ -d ../newfiles ] && cp ../newfiles/* .
 
+cd ..
 echo "Building $tobuild"
-docker container run alpinelinux/docker-abuild -r
+docker container run --volume aport:/home/builder alpinelinux/docker-abuild -r
