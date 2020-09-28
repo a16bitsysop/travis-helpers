@@ -30,4 +30,4 @@ echo "Preparing to build $tobuild"
 
 cd ..
 echo "Building $tobuild"
-docker container run --volume aport:/home/builder alpinelinux/docker-abuild -r
+docker container run --volume $(pwd)/aport:/home/builder alpinelinux/docker-abuild -r
