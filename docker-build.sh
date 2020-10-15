@@ -16,7 +16,7 @@ INFO=README.md
     echo "$INFO not found"
   fi
 
-URL=$(git config --get remote.origin.url)
+#URL=$(git config --get remote.origin.url)
 #GIT_COMMIT
 
 docker buildx build \

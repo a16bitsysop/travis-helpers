@@ -27,8 +27,9 @@ afiles=$(wget -qO- "https://git.alpinelinux.org/aports/tree/$tobuild" | \
 grep 'ls-blob' | sed "s+blame+plain+" | sed -r "s+.*ls-blob.*href='(.*)'.*+\1+" | xargs)
 echo "Extracted filenames: $afiles"
 
+(
 mkdir -p aport
-cd aport
+cd aport || exit 1
 for afile in $afiles
 do
   echo "Downloading $afile"
@@ -39,12 +40,12 @@ echo "Preparing to build $tobuild"
 [ -f ../APKBUILD.patch ] && patch -p1 -i ../APKBUILD.patch
 [ -f ../prebuild.sh ] && sh ../prebuild.sh
 [ -d ../newfiles ] && cp ../newfiles/* .
+)
 
-cd ..
 mv aport /home/"$NME"/
 chown -R "$NME":"$NME" /home/"$NME"/aport
 echo "Building $tobuild"
-su -c 'echo "Running as $(whoami)"  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo "Arch is: $CBUILD" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r' - ${NME}
+su -c 'echo "Running as $(whoami)"  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo Arch is: "$CBUILD" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r' - ${NME}
 
 echo "Copying Packages"
 cp -a /home/"$NME"/packages .

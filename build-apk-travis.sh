@@ -1,6 +1,6 @@
 #!/bin/sh
 # called with aport branch/name eg: main/zsh
-NME="builder"
+#NME="builder"
 
 if [ -n "$1" ]
 then
@@ -15,8 +15,9 @@ afiles=$(wget -qO- "https://git.alpinelinux.org/aports/tree/$tobuild" | \
 grep 'ls-blob' | sed "s+blame+plain+" | sed -r "s+.*ls-blob.*href='(.*)'.*+\1+" | xargs)
 echo "Extracted filenames: $afiles"
 
+(
 mkdir -p aport
-cd aport
+cd aport || exit 1
 for afile in $afiles
 do
   echo "Downloading $afile"
@@ -27,7 +28,7 @@ echo "Preparing to build $tobuild"
 [ -f ../APKBUILD.patch ] && patch -p1 -i ../APKBUILD.patch
 [ -f ../prebuild.sh ] && sh ../prebuild.sh
 [ -d ../newfiles ] && cp ../newfiles/* .
+)
 
-cd ..
-echo "Building $tobuild"
-docker container run --volume $(pwd)/aport:/home/builder alpinelinux/docker-abuild -r
+#echo "Building $tobuild"
+#docker container run --volume "$(pwd)"/aport:/home/builder alpinelinux/docker-abuild -r

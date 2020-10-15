@@ -19,7 +19,7 @@ gpg --batch --gen-key keygen.txt
 rm keygen.txt
 gpg --check-trustdb
 
-pass init $(gpg --list-secret-keys | grep -A1 ^sec | tail -n1 | sed 's+^[[:space:]]*++')
+pass init "$(gpg --list-secret-keys | grep -A1 ^sec | tail -n1 | sed 's+^[[:space:]]*++')"
 mkdir ~/.docker
 
 echo '{

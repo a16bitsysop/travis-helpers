@@ -8,124 +8,134 @@ from natsort import natsorted
 from bs4 import BeautifulSoup
 from ftplib import FTP
 
-def catFile( IMG, FILE ):
-	return client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
+def catFile(IMG, FILE):
+    return client.containers.run(IMG, 'cat ' + FILE).decode('utf-8').strip()
 
-def getDockerTag( URI ):
-	DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
-	try:
-		tags = request.urlopen(DOCKURI + URI + '/tags', timeout=timeo)
-	except error.HTTPError as e:
-		if hasattr(e, 'reason'):
-			exit('Failed to reach a server, does image exist: ' + str(e.reason))
-		elif hasattr(e, 'code'):
-			exit('The server couldn\'t fulfill the request: ' + e.code)
-		else:
-			exit('unknown error')
+def getDockerTag(URI):
+    DOCKURI = 'https://registry.hub.docker.com/v1/repositories/'
+    try:
+        tags = request.urlopen(DOCKURI + URI + '/tags', timeout=timeo)
+    except error.HTTPError as e:
+        if hasattr(e, 'reason'):
+            exit('Failed to reach a server, does image exist: ' + str(e.reason))
+        elif hasattr(e, 'code'):
+            exit('The server couldn\'t fulfill the request: ' + e.code)
+        else:
+            exit('unknown error')
 
-	raw_data = tags.read()
-	json_data = loads(raw_data.decode('utf-8'))
+    raw_data = tags.read()
+    json_data = loads(raw_data.decode('utf-8'))
 
-	lines = []
-	for line in json_data:
-		ver = line['name']
-		if ver != 'latest' and ver != 'docker-hub':
-			lines.append(ver)
+    lines = []
+    for line in json_data:
+        ver = line['name']
+        if ver != 'latest' and ver != 'docker-hub':
+            lines.append(ver)
 
-	return natsorted(lines)[-1]
+    return natsorted(lines)[-1]
 
-def getAlpineApk( APK ):
-	CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
-	IMG = 'alpine'
-	if args.edge:
-		IMG = IMG + ':edge'
-	result = client.containers.run(IMG, CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
-	return result
 
-def getAlpineVer( IMG = 'alpine' ):
-	if IMG == 'alpine' and args.edge:
-		IMG = IMG + ':edge'
-	return catFile(IMG, '/etc/alpine-release')
+def getAlpineApk(APK):
+    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
+    IMG = 'alpine'
+    if args.edge:
+        IMG = IMG + ':edge'
+    result = client.containers.run(IMG, CMD).decode('utf-8').strip(APK + '-').split(' ', 1)[0]
+    return result
 
-def getGitHash( FILE ):
-	data = request.urlopen('https://raw.githubusercontent.com/' + FILE, timeout=timeo)
-	return data.getheader('ETag').strip('"')
 
-def getFileHash( IMG ):
-	return catFile(IMG, '/etc/githash')
+def getAlpineVer(IMG = 'alpine'):
+    if IMG == 'alpine' and args.edge:
+        IMG = IMG + ':edge'
+    return catFile(IMG, '/etc/alpine-release')
 
-def getGitRelease( REPO ):
-	data = request.urlopen('https://github.com/' + REPO + '/releases/latest', timeout=timeo)
-	vers = data.url.rsplit('/',1)[1]
-	if vers == "releases":
-		soup = BeautifulSoup(data, 'html.parser')
-		vers = soup.find('div',class_='commit').find('a').get_text().strip()
-	if vers.startswith('v'):
-		return vers[1:]
-	return vers
 
-def getCargoRelease( NAME ):
-	requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
-	data = request.urlopen(requ, timeout=timeo)
-	soup = BeautifulSoup(data, 'html.parser')
-	vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
-	return vers
+def getGitHash(FILE):
+    data = request.urlopen('https://raw.githubusercontent.com/' + FILE, timeout=timeo)
+    return data.getheader('ETag').strip('"')
 
-def getHTTPRelease( URI, NAME, EXT ):
-	ver_list = []
-	requ = request.Request(URI, None, headers=head)
-	try:
-		data = request.urlopen(requ, timeout=timeo)
-	except error.HTTPError as e:
-		if hasattr(e, 'reason'):
-			exit('Failed to reach a server: ' + str(e.reason))
-		elif hasattr(e, 'code'):
-			exit('The server couldn\'t fulfill the request: ' + e.code)
-		else:
-			exit('unknown error')
-	except error.URLError as e:
-		if hasattr(e, 'reason'):
-			exit('URL Error: ' + str(e.reason))
-		else:
-			exit('unknown error')
-	soup = BeautifulSoup(data, 'html.parser')
-	for link in soup.find_all("a"):
-		filename = link.get('href').strip()
-		if filename.startswith(NAME) and filename.endswith(EXT):
-			ver = filename.replace(NAME,'').replace(EXT,'')
-			if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
-				ver_list.append(ver[1:])
-			else:
-				ver_list.append(ver)
-	if not ver_list:
-		exit('No ' + NAME + ' found at ' + URI)
 
-	return natsorted(ver_list)[-1]
+def getFileHash(IMG):
+    return catFile(IMG, '/etc/githash')
 
-def getFTPRelease( URI, DIR, NAME, EXT ):
-	ftp_list = []
 
-	def getname( recv_string ):
-		if recv_string.startswith(NAME) and recv_string.endswith(EXT):
-			ver = recv_string.replace(NAME,'').replace(EXT,'')
-			if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
-				ftp_list.append(ver[1:])
-			else:
-				ftp_list.append(ver)
+def getGitRelease(REPO):
+    data = request.urlopen('https://github.com/' + REPO + '/releases/latest', timeout=timeo)
+    vers = data.url.rsplit('/',1)[1]
+    if vers == "releases":
+        soup = BeautifulSoup(data, 'html.parser')
+        vers = soup.find('div',class_='commit').find('a').get_text().strip()
+    if vers.startswith('v'):
+        return vers[1:]
+    return vers
 
-	#Open ftp connection
-	ftp = FTP(URI)
-	ftp.login()
 
-	#list directory
-	ftp.cwd(DIR)
-	files = ftp.retrlines('NLST', callback=getname)
-	ftp.quit()
+def getCargoRelease(NAME):
+    requ = request.Request('https://lib.rs/crates/' + NAME, None, headers=head)
+    data = request.urlopen(requ, timeout=timeo)
+    soup = BeautifulSoup(data, 'html.parser')
+    vers =  soup.find(id='versions').find(property='softwareVersion').get_text().strip()
+    return vers
 
-	if not ftp_list:
-		exit('No ' + NAME + ' found at ' + URI)
 
-	return natsorted(ftp_list)[-1]
+def getHTTPRelease(URI, NAME, EXT):
+    ver_list = []
+    requ = request.Request(URI, None, headers=head)
+    try:
+        data = request.urlopen(requ, timeout=timeo)
+    except error.HTTPError as e:
+        if hasattr(e, 'reason'):
+            exit('Failed to reach a server: ' + str(e.reason))
+        elif hasattr(e, 'code'):
+            exit('The server couldn\'t fulfill the request: ' + e.code)
+        else:
+            exit('unknown error')
+    except error.URLError as e:
+        if hasattr(e, 'reason'):
+            exit('URL Error: ' + str(e.reason))
+        else:
+            exit('unknown error')
+    soup = BeautifulSoup(data, 'html.parser')
+    for link in soup.find_all("a"):
+        filename = link.get('href').strip()
+        if filename.startswith(NAME) and filename.endswith(EXT):
+            ver = filename.replace(NAME,'').replace(EXT,'')
+            if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
+                ver_list.append(ver[1:])
+            else:
+                ver_list.append(ver)
+    if not ver_list:
+        exit('No ' + NAME + ' found at ' + URI)
+
+    return natsorted(ver_list)[-1]
+
+
+def getFTPRelease(URI, DIR, NAME, EXT):
+    ftp_list = []
+
+    def getname(recv_string):
+        if recv_string.startswith(NAME) and recv_string.endswith(EXT):
+            ver = recv_string.replace(NAME,'').replace(EXT,'')
+            if ver.startswith('-') or ver.startswith('.') or ver.startswith('v'):
+                ftp_list.append(ver[1:])
+            else:
+                ftp_list.append(ver)
+
+
+    #Open ftp connection
+    ftp = FTP(URI)
+    ftp.login()
+
+    #list directory
+    ftp.cwd(DIR)
+    files = ftp.retrlines('NLST', callback=getname)
+    ftp.quit()
+
+    if not ftp_list:
+        exit('No ' + NAME + ' found at ' + URI)
+
+    return natsorted(ftp_list)[-1]
+
 
 parser = ArgumentParser()
 parser.add_argument('-a', '--alpine', type=str,\
@@ -157,46 +167,46 @@ head = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebK
 timeo = 30
 
 if args.alpine:
-	print(getAlpineApk(args.alpine))
+    print(getAlpineApk(args.alpine))
 
 if args.base:
-	print(getAlpineVer())
+    print(getAlpineVer())
 
 if args.myalp:
-	print(getAlpineVer(IMG = args.myalp))
+    print(getAlpineVer(IMG = args.myalp))
 
 if args.docker:
-	print(getDockerTag(args.docker))
+    print(getDockerTag(args.docker))
 
 if args.fhash:
-	print(getFileHash(args.fhash))
+    print(getFileHash(args.fhash))
 
 if args.ghash:
-	print(getGitHash(args.ghash))
+    print(getGitHash(args.ghash))
 
 if args.release:
-	print(getGitRelease(args.release))
+    print(getGitRelease(args.release))
 
 if args.cargo:
-	print(getCargoRelease(args.cargo))
+    print(getCargoRelease(args.cargo))
 
 if args.list:
-	try:
-		splitargs = args.list.split(',')
-		nme = splitargs[0]
-		uri = splitargs[1]
-		ext = splitargs[2]
-	except IndexError:
-		exit('Not enough , seperated arguments passed to --list')
-	print(getHTTPRelease(uri, nme, ext))
+    try:
+        splitargs = args.list.split(',')
+        nme = splitargs[0]
+        uri = splitargs[1]
+        ext = splitargs[2]
+    except IndexError:
+        exit('Not enough , seperated arguments passed to --list')
+    print(getHTTPRelease(uri, nme, ext))
 
 if args.ftp:
-	try:
-		splitargs = args.ftp.split(',')
-		nme = splitargs[0]
-		uri = splitargs[1]
-		dir = splitargs[2]
-		ext = splitargs[3]
-	except IndexError:
-		exit('Not enough , seperated arguments passed to --ftp')
-	print(getFTPRelease(uri, dir, nme, ext))
+    try:
+        splitargs = args.ftp.split(',')
+        nme = splitargs[0]
+        uri = splitargs[1]
+        dir = splitargs[2]
+        ext = splitargs[3]
+    except IndexError:
+        exit('Not enough , seperated arguments passed to --ftp')
+    print(getFTPRelease(uri, dir, nme, ext))
