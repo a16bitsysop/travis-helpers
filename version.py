@@ -37,8 +37,9 @@ def getDockerTag(URI):
 
 
 def getAlpineApk(APK):
-    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK
-    CMD += ';"'
+#    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK
+#    CMD += ';"'
+    CMD = "changeme"
     IMG = "alpine"
     if args.edge:
         IMG = IMG + ":edge"
