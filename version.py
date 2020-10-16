@@ -20,7 +20,7 @@ def getDockerTag(URI):
         if hasattr(e, "reason"):
             exit("Failed to reach a server, does image exist: " + str(e.reason))
         elif hasattr(e, "code"):
-            exit("The server couldn\"t fulfill the request: " + e.code)
+            exit("The server could not fulfill the request: " + e.code)
         else:
             exit("unknown error")
 
@@ -89,7 +89,7 @@ def getHTTPRelease(URI, NAME, EXT):
         if hasattr(e, "reason"):
             exit("Failed to reach a server: " + str(e.reason))
         elif hasattr(e, "code"):
-            exit("The server couldn\"t fulfill the request: " + e.code)
+            exit("The server could not fulfill the request: " + e.code)
         else:
             exit("unknown error")
     except error.URLError as e:
