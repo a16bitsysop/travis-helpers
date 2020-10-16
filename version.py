@@ -37,9 +37,7 @@ def getDockerTag(URI):
 
 
 def getAlpineApk(APK):
-    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK
-    CMD += ';"'
-#    CMD = "changeme"
+    CMD = "sh -c \"apk update > /dev/null; apk info -s " + APK + ";\""
     IMG = "alpine"
     if args.edge:
         IMG = IMG + ":edge"
@@ -141,29 +139,29 @@ def getFTPRelease(URI, DIR, NAME, EXT):
 
 parser = ArgumentParser()
 parser.add_argument("-a", "--alpine", type=str,
-                    help="get latest version of alpine package "ALPINE"")
+                    help="get latest version of alpine package \"ALPINE\"")
 parser.add_argument("-b", "--base", action="store_true",
                     help="get alpine base image version")
 parser.add_argument("-m", "--myalp", type=str,
-                    help="get version of alpine in image "MYALP"")
+                    help="get version of alpine in image \"MYALP\"")
 parser.add_argument("-e", "--edge", action="store_true",
                     help="use alpine edge version for command")
 parser.add_argument("-d", "--docker", type=str,
-                    help="get latest docker tag of docker image "DOCKER"")
+                    help="get latest docker tag of docker image \"DOCKER\"")
 parser.add_argument("-f", "--fhash", type=str,
-                    help="get git hash saved in docker image "FHASH"")
+                    help="get git hash saved in docker image \"FHASH\"")
 parser.add_argument("-g", "--ghash", type=str,
-                    help="get latest github hash of file "GHASH"")
+                    help="get latest github hash of file \"GHASH\"")
 parser.add_argument("-r", "--release", type=str,
-                    help="get latest github release of "release" (USERNAME/REPO)")
+                    help="get latest github release of \"release(USERNAME/REPO)\"")
 parser.add_argument("-c", "--cargo", type=str,
-                    help="get latest cargo release of "CARGO"")
+                    help="get latest cargo release of \"CARGO\"")
 parser.add_argument("-l", "--list", type=str,
-                    help="get latest http directory/webpage release of "LIST(package name),\
-URL(full url),EXT(file extension eg tar.gz)"")
+                    help="get latest http directory/webpage release of \"LIST(package name),\
+URL(full url),EXT(file extension eg tar.gz)\"")
 parser.add_argument("-t", "--ftp", type=str,
-                    help="get latest ftp directory release of "FTP(package name),\
-URL(ftp server),DIR(ftp directory),EXT(file extension eg tar.gz)"")
+                    help="get latest ftp directory release of \"FTP(package name),\
+URL(ftp server),DIR(ftp directory),EXT(file extension eg tar.gz)\"")
 
 args = parser.parse_args()
 client = from_env()
