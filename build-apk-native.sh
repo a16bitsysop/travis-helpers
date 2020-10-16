@@ -45,7 +45,7 @@ echo "Preparing to build $tobuild"
 mv aport /home/"$NME"/
 chown -R "$NME":"$NME" /home/"$NME"/aport
 echo "Building $tobuild"
-su -c "echo Running as "$(whoami)"  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo Arch is: "$CBUILD" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r" - ${NME}
+su -c "echo Running as ""$(whoami)""  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo Arch is: ""$CBUILD"" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r" - ${NME}
 
 echo "Copying Packages"
 cp -a /home/"$NME"/packages .
