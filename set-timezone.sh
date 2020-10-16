@@ -1,17 +1,14 @@
-#!/bin/ash
-# Reset
-Color_Off='\033[0m'       # Text Reset
-# Regular Colors
-#Black='\033[0;30m'        # Black
-Red='\033[0;31m'          # Red
-Green='\033[0;32m'        # Green
-Yellow='\033[0;33m'       # Yellow
-#Blue='\033[0;34m'         # Blue
-#Purple='\033[0;35m'       # Purple
-#Cyan='\033[0;36m'         # Cyan
-#White='\033[0;37m'        # White
+#!/bin/sh
 
-echo -e "${Green}"
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+#blu=$'\e[1;34m'
+#mag=$'\e[1;35m'
+#cyn=$'\e[1;36m'
+end=$'\e[0m'
+
+printf "%b" "${grn}"
 apk update
 echo "\$TIMEZONE= $TIMEZONE"
 echo
@@ -27,12 +24,9 @@ then
     cp /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
     echo "$TIMEZONE" > /etc/timezone
   else
-    echo -e "${Red}"
-    echo "$TIMEZONE does not exist"
+    printf "%b\n" "${red} $TIMEZONE does not exist"
   fi
   apk del tzdata
 fi
 [ -n "$1" ] && NAME="$1" || NAME="container"
-echo -e "${Yellow}"
-echo "Starting $NAME at $(date +'%x %X')"
-echo -e "${Color_Off}"
+printf "%b\n" "${yel} Starting $NAME at $(date +'%x %X') ${end}"
