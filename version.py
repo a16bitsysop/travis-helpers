@@ -37,9 +37,9 @@ def getDockerTag(URI):
 
 
 def getAlpineApk(APK):
-#    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK
-#    CMD += ';"'
-    CMD = "changeme"
+    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK
+    CMD += ';"'
+#    CMD = "changeme"
     IMG = "alpine"
     if args.edge:
         IMG = IMG + ":edge"
@@ -55,7 +55,7 @@ def getAlpineVer(IMG="alpine"):
 
 def getGitHash(FILE):
     data = request.urlopen("https://raw.githubusercontent.com/" + FILE, timeout=timeo)
-    return data.getheader("ETag").strip(""")
+    return data.getheader("ETag").strip("\"")
 
 
 def getFileHash(IMG):
