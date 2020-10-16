@@ -8,6 +8,7 @@ from natsort import natsorted
 from bs4 import BeautifulSoup
 from ftplib import FTP
 
+
 def catFile(IMG, FILE):
     return client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
 
@@ -37,11 +38,16 @@ def getDockerTag(URI):
 
 
 def getAlpineApk(APK):
-    CMD = "sh -c \"apk update > /dev/null; apk info -s " + APK + ";\""
+    CMD = 'sh -c "apk update > /dev/null; apk info -s ' + APK + ';"'
     IMG = "alpine"
     if args.edge:
         IMG = IMG + ":edge"
-    result = client.containers.run(IMG, CMD).decode("utf-8").strip(APK + "-").split(" ", 1)[0]
+    result = (
+        client.containers.run(IMG, CMD)
+        .decode("utf-8")
+        .strip(APK + "-")
+        .split(" ", 1)[0]
+    )
     return result
 
 
@@ -53,7 +59,7 @@ def getAlpineVer(IMG="alpine"):
 
 def getGitHash(FILE):
     data = request.urlopen("https://raw.githubusercontent.com/" + FILE, timeout=timeo)
-    return data.getheader("ETag").strip("\"")
+    return data.getheader("ETag").strip('"')
 
 
 def getFileHash(IMG):
@@ -61,7 +67,9 @@ def getFileHash(IMG):
 
 
 def getGitRelease(REPO):
-    data = request.urlopen("https://github.com/" + REPO + "/releases/latest", timeout=timeo)
+    data = request.urlopen(
+        "https://github.com/" + REPO + "/releases/latest", timeout=timeo
+    )
     vers = data.url.rsplit("/", 1)[1]
     if vers == "releases":
         soup = BeautifulSoup(data, "html.parser")
@@ -138,35 +146,57 @@ def getFTPRelease(URI, DIR, NAME, EXT):
 
 
 parser = ArgumentParser()
-parser.add_argument("-a", "--alpine", type=str,
-                    help="get latest version of alpine package \"ALPINE\"")
-parser.add_argument("-b", "--base", action="store_true",
-                    help="get alpine base image version")
-parser.add_argument("-m", "--myalp", type=str,
-                    help="get version of alpine in image \"MYALP\"")
-parser.add_argument("-e", "--edge", action="store_true",
-                    help="use alpine edge version for command")
-parser.add_argument("-d", "--docker", type=str,
-                    help="get latest docker tag of docker image \"DOCKER\"")
-parser.add_argument("-f", "--fhash", type=str,
-                    help="get git hash saved in docker image \"FHASH\"")
-parser.add_argument("-g", "--ghash", type=str,
-                    help="get latest github hash of file \"GHASH\"")
-parser.add_argument("-r", "--release", type=str,
-                    help="get latest github release of \"release(USERNAME/REPO)\"")
-parser.add_argument("-c", "--cargo", type=str,
-                    help="get latest cargo release of \"CARGO\"")
-parser.add_argument("-l", "--list", type=str,
-                    help="get latest http directory/webpage release of \"LIST(package name),\
-URL(full url),EXT(file extension eg tar.gz)\"")
-parser.add_argument("-t", "--ftp", type=str,
-                    help="get latest ftp directory release of \"FTP(package name),\
-URL(ftp server),DIR(ftp directory),EXT(file extension eg tar.gz)\"")
+parser.add_argument(
+    "-a", "--alpine", type=str, help='get latest version of alpine package "ALPINE"'
+)
+parser.add_argument(
+    "-b", "--base", action="store_true", help="get alpine base image version"
+)
+parser.add_argument(
+    "-m", "--myalp", type=str, help='get version of alpine in image "MYALP"'
+)
+parser.add_argument(
+    "-e", "--edge", action="store_true", help="use alpine edge version for command"
+)
+parser.add_argument(
+    "-d", "--docker", type=str, help='get latest docker tag of docker image "DOCKER"'
+)
+parser.add_argument(
+    "-f", "--fhash", type=str, help='get git hash saved in docker image "FHASH"'
+)
+parser.add_argument(
+    "-g", "--ghash", type=str, help='get latest github hash of file "GHASH"'
+)
+parser.add_argument(
+    "-r",
+    "--release",
+    type=str,
+    help='get latest github release of "release(USERNAME/REPO)"',
+)
+parser.add_argument(
+    "-c", "--cargo", type=str, help='get latest cargo release of "CARGO"'
+)
+parser.add_argument(
+    "-l",
+    "--list",
+    type=str,
+    help='get latest http directory/webpage release of "LIST(package name),\
+URL(full url),EXT(file extension eg tar.gz)"',
+)
+parser.add_argument(
+    "-t",
+    "--ftp",
+    type=str,
+    help='get latest ftp directory release of "FTP(package name),\
+URL(ftp server),DIR(ftp directory),EXT(file extension eg tar.gz)"',
+)
 
 args = parser.parse_args()
 client = from_env()
-head = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
-AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"}
+head = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
+AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+}
 timeo = 30
 
 if args.alpine:
