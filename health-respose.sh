@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # $1 = text to send
-# $2 = IP address to name to send to
-# $3 = port to send to
-# $4 = expected response
+# $2 = port to send to
+# $3 = expected response
+# $4 = IP address or name to send to (127.0.0.1 if missing)
 
-echo "$1" | nc "$2" "$3" | grep -q "$4" || exit 1
+echo "$1" | nc "${4-127.0.0.1}" "$2" | grep -q "$3" || exit 1
