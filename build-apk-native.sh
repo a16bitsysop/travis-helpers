@@ -48,6 +48,7 @@ echo "Building $tobuild"
 su -c "echo Running as ""$(whoami)""  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo Arch is: ""$CBUILD"" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r" - ${NME}
 
 echo "Copying Packages"
+cd /tmp || exit 1
 cp -a /home/"$NME"/packages .
 
 apk del .aport-deps
