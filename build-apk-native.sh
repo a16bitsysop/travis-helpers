@@ -53,3 +53,4 @@ cp -a /home/"$NME"/packages .
 apk del .aport-deps
 
 ls -lah packages
+ls -lah packages/builder
