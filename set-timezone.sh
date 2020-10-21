@@ -15,9 +15,12 @@ echo
 
 if [ -n "$TIMEZONE" ]
 then
-  echo " Waiting for DNS"
-  ping -c1 -W60 google.com || ping -c1 -W60 www.google.com || ping -c1 -W60 google-public-dns-b.google.com
-  apk add --no-cache tzdata
+  if [ "$1" != "unbound" ]
+  then
+    echo " Waiting for DNS"
+    ping -c1 -W60 google.com || ping -c1 -W60 www.google.com || ping -c1 -W60 google-public-dns-b.google.com
+    apk add --no-cache tzdata
+  fi
   if [ -f /usr/share/zoneinfo/"$TIMEZONE" ]
   then
     echo " Setting timezone to $TIMEZONE"
@@ -26,6 +29,6 @@ then
   else
     printf "%b\n" "${red} $TIMEZONE does not exist"
   fi
-  apk del tzdata
+  [ "$1" != "unbound" ] &&apk del tzdata
 fi
 printf "%b\n" "${yel} Starting ${1-container} at $(date +'%x %X') ${end}"
