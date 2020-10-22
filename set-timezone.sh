@@ -29,6 +29,6 @@ then
   else
     printf "%b\n" "${red} $TIMEZONE does not exist"
   fi
-  [ "$1" != "unbound" ] &&apk del tzdata
+  [ "$1" != "unbound" ] && apk del tzdata
 fi
 printf "%b\n" "${yel} Starting ${1-container} at $(date +'%x %X') ${end}"
