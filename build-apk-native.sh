@@ -51,6 +51,7 @@ echo "Copying Packages"
 cd /tmp || exit 1
 cp -a /home/"$NME"/packages .
 [ -d packages/builder/x86_64 ] && cp -a packages/builder/x86_64 packages/builder/x86
+[ -d packages/builder/unknown ] && cp -a packages/builder/unknown packages/builder/armv7
 apk del .aport-deps
 
 ls -lah packages
