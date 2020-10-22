@@ -50,6 +50,7 @@ su -c "echo Running as ""$(whoami)""  && PATH=$PATH:/sbin && cd ~/aport && expor
 echo "Copying Packages"
 cd /tmp || exit 1
 cp -a /home/"$NME"/packages .
+[ -d packages/x86_64 ] && cp -a packages/x86_64 packages/x86
 apk del .aport-deps
 
 ls -lah packages
