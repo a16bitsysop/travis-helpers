@@ -56,5 +56,5 @@ cd packages/"$NME" || exit 1
 [ -d x86_64 ] && cp -a x86_64 x86
 [ -d unknown ] && cp -a unknown armv7
 
-find -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
+find ./ -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
 -execdir ls -lah {} \;
