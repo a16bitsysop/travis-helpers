@@ -47,12 +47,14 @@ chown -R "$NME":"$NME" /home/"$NME"/aport
 echo "Building $tobuild"
 su -c "echo Running as ""$(whoami)""  && PATH=$PATH:/sbin && cd ~/aport && export CBUILD=$(uname -m) && echo Arch is: ""$CBUILD"" && abuild-keygen -a -i -n && abuild checksum && abuild -A && abuild -r" - ${NME}
 
+#apk del .aport-deps
+
 echo "Copying Packages"
 cd /tmp || exit 1
 cp -a /home/"$NME"/packages .
-[ -d packages/builder/x86_64 ] && cp -a packages/builder/x86_64 packages/builder/x86
-[ -d packages/builder/unknown ] && cp -a packages/builder/unknown packages/builder/armv7
-apk del .aport-deps
+cd packages/"$NME" || exit 1
+[ -d x86_64 ] && cp -a x86_64 x86
+[ -d unknown ] && cp -a unknown armv7
 
-ls -lah packages
-ls -lah packages/builder
+find -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
+-execdir ls -lah {} \;
