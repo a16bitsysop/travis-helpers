@@ -17,7 +17,11 @@ then
   if [ "$1" != "unbound" ]
   then
     echo " Waiting for DNS"
-    ping -c1 -W60 google.com || ping -c1 -W60 www.google.com || ping -c1 -W60 google-public-dns-b.google.com
+    for TRY in 1 2 3 4 5 6
+    do
+      ping -c1 google.com && break
+      sleep 10s
+    done
     apk add --no-cache tzdata
   fi
   if [ -f /usr/share/zoneinfo/"$TIMEZONE" ]
