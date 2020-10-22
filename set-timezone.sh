@@ -19,6 +19,7 @@ then
     echo " Waiting for DNS"
     for TRY in 1 2 3 4 5 6
     do
+      echo "  Try: $TRY"
       ping -c1 google.com && break
       sleep 10s
     done
