@@ -9,7 +9,6 @@ yel='\e[1;33m'
 end='\e[0m'
 
 printf "%b" "${grn}"
-apk update
 echo " \$TIMEZONE= $TIMEZONE"
 echo
 
@@ -19,6 +18,7 @@ then
   then
     echo " Waiting for DNS"
     ping -c1 -W60 google.com || ping -c1 -W60 www.google.com || ping -c1 -W60 google-public-dns-b.google.com
+    apk update
     apk add --no-cache tzdata
   fi
   if [ -f /usr/share/zoneinfo/"$TIMEZONE" ]
