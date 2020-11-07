@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from sys import exit
 from argparse import ArgumentParser
-from urllib import request, error
+from ftplib import FTP
 from json import loads
+from urllib import request, error
+
+from bs4 import BeautifulSoup
 from docker import from_env
 from natsort import natsorted
-from bs4 import BeautifulSoup
-from ftplib import FTP
 
 
 def catFile(IMG, FILE):
