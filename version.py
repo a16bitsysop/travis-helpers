@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from sys import exit
 from argparse import ArgumentParser
 from ftplib import FTP
 from json import loads
-from urllib import request, error
+from sys import exit
+from urllib import error, request
 
 from bs4 import BeautifulSoup
 from docker import from_env
