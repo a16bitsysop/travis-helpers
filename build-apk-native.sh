@@ -11,8 +11,6 @@ else
 fi
 
 echo "Setting up build environment..."
-#apk update
-#apk add --no-cache --virtual .aport-deps git wget alpine-sdk pax-utils atools git sudo
 apk add --update-cache --virtual .aport-deps alpine-conf alpine-sdk sudo
 apk upgrade -a
 setup-apkcache /var/cache/apk
@@ -22,20 +20,10 @@ adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty
 echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME}
 echo "${NME} ALL=NOPASSWD : ALL" >> /etc/sudoers.d/${NME}
 
-echo "Downloading aport files list..."
-afiles=$(wget -qO- "https://git.alpinelinux.org/aports/tree/$tobuild" | \
-grep 'ls-blob' | sed "s+blame+plain+" | sed -r "s+.*ls-blob.*href='(.*)'.*+\1+" | xargs)
-echo "Extracted filenames: $afiles"
+pull-apk-source.sh "$tobuild"
 
 (
-mkdir -p aport
 cd aport || exit 1
-for afile in $afiles
-do
-  echo "Downloading $afile"
-  wget -q "https://git.alpinelinux.org$afile"
-done
-
 echo "Preparing to build $tobuild"
 [ -f ../APKBUILD.patch ] && patch -p1 -i ../APKBUILD.patch
 [ -f ../prebuild.sh ] && sh ../prebuild.sh

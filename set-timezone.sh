@@ -23,7 +23,7 @@ then
       ping -c1 google.com && break
       sleep 10s
     done
-    apk add --no-cache tzdata
+    apk add --no-cache --no-progress -q tzdata
   fi
   if [ -f /usr/share/zoneinfo/"$TIMEZONE" ]
   then
@@ -33,6 +33,6 @@ then
   else
     printf "%b\n" "${red} $TIMEZONE does not exist"
   fi
-  [ "$1" != "unbound" ] && apk del tzdata
+  [ "$1" != "unbound" ] && apk del -q tzdata
 fi
 printf "%b\n" "${yel} Starting ${1-container} at $(date +'%x %X') ${end}"

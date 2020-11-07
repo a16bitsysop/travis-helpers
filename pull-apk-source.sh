@@ -1,7 +1,5 @@
 #!/bin/sh
 # called with aport branch/name eg: main/zsh
-#NME="builder"
-
 if [ -n "$1" ]
 then
   tobuild="$1"
@@ -23,12 +21,4 @@ do
   echo "Downloading $afile"
   wget -q "https://git.alpinelinux.org$afile"
 done
-
-echo "Preparing to build $tobuild"
-[ -f ../APKBUILD.patch ] && patch -p1 -i ../APKBUILD.patch
-[ -f ../prebuild.sh ] && sh ../prebuild.sh
-[ -d ../newfiles ] && cp ../newfiles/* .
 )
-
-#echo "Building $tobuild"
-#docker container run --volume "$(pwd)"/aport:/home/builder alpinelinux/docker-abuild -r
