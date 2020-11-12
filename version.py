@@ -11,7 +11,11 @@ from natsort import natsorted
 
 
 def catFile(IMG, FILE):
-    return client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
+    try:
+        res_ver = client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
+    except docker.errors.ImageNotFound as e:
+        res_ver = 0
+    return res_ver
 
 
 def getDockerTag(URI):
