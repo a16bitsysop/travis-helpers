@@ -13,8 +13,8 @@ from natsort import natsorted
 def catFile(IMG, FILE):
     try:
         res_ver = client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
-    except docker.errors.ImageNotFound as e:
-        res_ver = 0
+    except:
+        res_ver = "not.found"
     return res_ver
 
 
