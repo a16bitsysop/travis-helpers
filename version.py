@@ -13,7 +13,8 @@ from natsort import natsorted
 def catFile(IMG, FILE):
     try:
         res_ver = client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
-    except:
+    except Exception as ex:
+	ex = ex
         res_ver = "not.found"
     return res_ver
 
