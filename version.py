@@ -14,7 +14,7 @@ def catFile(IMG, FILE):
     try:
         res_ver = client.containers.run(IMG, "cat " + FILE).decode("utf-8").strip()
     except Exception as ex:
-	ex = ex
+        ex = ex
         res_ver = "not.found"
     return res_ver
 
