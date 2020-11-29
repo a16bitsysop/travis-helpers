@@ -18,6 +18,7 @@ mkdir -p aport
 cd aport || exit 1
 for afile in $afiles
 do
+  sleep 6s
   echo "Downloading $afile"
   wget -q "https://git.alpinelinux.org$afile"
 done
