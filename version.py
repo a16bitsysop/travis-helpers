@@ -98,6 +98,7 @@ def getGitlabRelease(REPO):
         return vers[1:]
     return vers
 
+
 def getCargoRelease(NAME):
     requ = request.Request("https://lib.rs/crates/" + NAME, None, headers=head)
     data = request.urlopen(requ, timeout=timeo)
@@ -196,7 +197,7 @@ parser.add_argument(
     "-s",
     "--gitlab",
     type=str,
-    help='get latest gitlab tag from repo url "gitlab(USERNAME/REPO)"',
+    help='get latest gitlab tag from full repo url "gitlab(USERNAME/REPO)"',
 )
 parser.add_argument(
     "-c", "--cargo", type=str, help='get latest cargo release of "CARGO"'
