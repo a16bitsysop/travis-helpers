@@ -85,6 +85,19 @@ def getGitRelease(REPO):
     return vers
 
 
+def getGitlabRelease(REPO):
+    requ = request.Request(REPO + "/-/tags/", None, headers=head)
+    data = request.urlopen(requ, timeout=timeo)
+    soup = BeautifulSoup(data, "html.parser")
+    rawvers = soup.find_all(class_="item-title ref-name")
+    allvers = []
+    for i in rawvers:
+        allvers.append(i.string)
+    vers = natsorted(allvers)[-1]
+    if vers.startswith("v"):
+        return vers[1:]
+    return vers
+
 def getCargoRelease(NAME):
     requ = request.Request("https://lib.rs/crates/" + NAME, None, headers=head)
     data = request.urlopen(requ, timeout=timeo)
@@ -180,6 +193,12 @@ parser.add_argument(
     help='get latest github release of "release(USERNAME/REPO)"',
 )
 parser.add_argument(
+    "-s",
+    "--gitlab",
+    type=str,
+    help='get latest gitlab tag from repo url "gitlab(USERNAME/REPO)"',
+)
+parser.add_argument(
     "-c", "--cargo", type=str, help='get latest cargo release of "CARGO"'
 )
 parser.add_argument(
@@ -225,6 +244,9 @@ if args.ghash:
 
 if args.release:
     print(getGitRelease(args.release))
+
+if args.gitlab:
+    print(getGitlabRelease(args.gitlab))
 
 if args.cargo:
     print(getCargoRelease(args.cargo))
