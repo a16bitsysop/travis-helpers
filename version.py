@@ -127,6 +127,9 @@ def getHTTPRelease(URI, NAME, EXT):
     soup = BeautifulSoup(data, "html.parser")
     for link in soup.find_all("a"):
         filename = link.get("href").strip()
+        splitfilename = filename.split("/")[-1]
+        if splitfilename:
+            filename = splitfilename
         if filename.startswith(NAME) and filename.endswith(EXT):
             ver = filename.replace(NAME, "").replace(EXT, "")
             if ver.startswith("-") or ver.startswith(".") or ver.startswith("v"):
