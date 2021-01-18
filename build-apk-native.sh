@@ -11,7 +11,7 @@ else
 fi
 
 echo "Setting up build environment..."
-apk add --update-cache --virtual .aport-deps alpine-conf alpine-sdk sudo findutils
+apk add --update-cache --upgrade --virtual .aport-deps alpine-conf alpine-sdk sudo findutils
 apk upgrade -a
 setup-apkcache /var/cache/apk
 
