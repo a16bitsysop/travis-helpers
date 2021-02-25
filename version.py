@@ -130,12 +130,15 @@ def getHTTPRelease(URI, NAME, EXT):
         splitfilename = filename.split("/")[-1]
         if splitfilename:
             filename = splitfilename
-        if filename.startswith(NAME) and filename.endswith(EXT):
-            ver = filename.replace(NAME, "").replace(EXT, "")
+        if filename.startswith(NAME) and filename.endswith("."+EXT):
+            ver = filename.replace(NAME, "").replace("."+EXT, "")
             if ver.startswith("-") or ver.startswith(".") or ver.startswith("v"):
-                ver_list.append(ver[1:])
-            else:
-                ver_list.append(ver)
+                ver=ver[1:]
+            if not ver[0].isnumeric() and not ver[1].isnumeric():
+                continue
+            if "-" in ver:
+                continue
+            ver_list.append(ver)
     if not ver_list:
         exit("No " + NAME + " found at " + URI)
 
