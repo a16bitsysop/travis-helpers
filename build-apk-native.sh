@@ -43,6 +43,7 @@ cp -a /home/"$NME"/packages .
 cd packages/"$NME" || exit 1
 [ -d x86_64 ] && cp -a x86_64 x86
 [ -d unknown ] && cp -a unknown armv7
+[ -d unknown ] && cp -a unknown x86
 
 find ./ -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
 -execdir ls -lah {} \;
