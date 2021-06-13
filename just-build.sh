@@ -27,8 +27,8 @@ su -c "abuild-keygen -a -i -n && cd /tmp && abuild checksum && abuild -A && abui
 
 echo "Copying Packages"
 cd /tmp || exit 1
-mkdir -p packages/$(uname -m)
-cp -a /home/"$NME"/packages/* packages/$(uname -m)
+mkdir -p packages/"$(uname -m)"
+cp -a /home/"$NME"/packages/* packages/"$(uname -m)"
 
 find ./ -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
 -execdir ls -lah {} \;
